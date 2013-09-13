@@ -57,6 +57,7 @@ int main(int argc, char* argv[]) {
 	while (fgets(buffer, BUFFER_SIZE, fp) != NULL) {
 		for (index = 0; index < BUFFER_SIZE; index++) {
 			// add each chain to the chainList
+			// upper bound of index should be corrected. BUFFER_SIZE is too big.
 		}
 	}
 	
