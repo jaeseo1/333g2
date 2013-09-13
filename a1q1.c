@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <err.h>
 
-#define BUFFER_SIZE 256
+#define BUFFER_SIZE 64
+#define CHAIN_SIZE 3 // n-chain
 
 static int map[16][16] = {
 	{0x7, 0x5, 0x0, 0x4, 0x2, 0x3, 0xb, 0x6, 0xa, 0x8, 0x9, 0xd, 0xc, 0xf, 0xe, 0x1},
@@ -43,15 +44,20 @@ int main(int argc, char* argv[]) {
 
 	// read input file.
 	FILE* fp;
-	char line[BUFFER_SIZE];
 	fp = fopen(argv[1], "r");
 	if (fp == NULL) {
 		fprintf(stderr, "input file is invalid\n");
 		return(-1);
 	}
 	
-	// find 3 consecutive characters that appear multiple times in the cipher text.
-	while (fgets(line, BUFFER_SIZE, fp) != NULL) {
+	// find n consecutive characters (n-chain) that appear multiple times in the cipher text.
+	char buffer[BUFFER_SIZE];
+	int index;
+	char chainList;
+	while (fgets(buffer, BUFFER_SIZE, fp) != NULL) {
+		for (index = 0; index < BUFFER_SIZE; index++) {
+			// add each chain to the chainList
+		}
 	}
 	
 	// analyze the pattern that they appear. (ex. appear every x bytes)
