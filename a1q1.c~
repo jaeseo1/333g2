@@ -1,5 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <err.h>
+#include <stdbool.h>
 
 #define BUFFER_SIZE 64
 #define CHAIN_SIZE 3 // n-chain
@@ -22,13 +25,38 @@ static int map[16][16] = {
 	{0xa, 0xd, 0xe, 0x9, 0xf, 0x7, 0x6, 0x8, 0x4, 0x5, 0x1, 0x0, 0x2, 0xb, 0x3, 0xc},
 	{0xf, 0x4, 0x1, 0x6, 0x0, 0x2, 0x3, 0x7, 0xb, 0xa, 0x8, 0x9, 0xd, 0xe, 0xc, 0x5}};
 
+struct chain {
+	// an element of chain list.
+	// contains the n-chain string, and the number of occurences.
+	char chainStr[CHAIN_SIZE];
+	int occurence;
+};
+
+struct chain makeChain(char *givenStr) {
+	// given a string, makes a chain and returns it.
+	struct chain newChain;
+	strcpy(newChain.chainStr, givenStr);
+	newChain.occurence = 1;
+	return newChain;
+}
+
+bool isInChainList(struct chain *chainList, int chainListIndex, char *str) {
+	// checks if the chain with the given str already exists in the list.
+	const int chainSize = sizeof(struct chain);
+	int searchIndex;
+	for (searchIndex = 0; searchIndex < chainListIndex; searchIndex++) {
+	}
+}
+
 int getHigh(int text) {
+	// returns the high 4 bits of the given int
 	int high;
 	high = (text >> 4);
 	return high;
 }
 
 int getLow(int text) {
+	// returns the low 4 bits of the given int
 	int low;
 	low = (text & 15);
 	return low;
@@ -49,13 +77,16 @@ int main(int argc, char* argv[]) {
 		fprintf(stderr, "input file is invalid\n");
 		return(-1);
 	}
-	
+
 	// find n consecutive characters (n-chain) that appear multiple times in the cipher text.
+	struct chain *chainList;
+	chainList = (struct chain *) malloc(sizeof(struct chain));
+	int chainListIndex = 0;
 	char buffer[BUFFER_SIZE];
-	int index;
-	char chainList;
+	int bufferIndex;
 	while (fgets(buffer, BUFFER_SIZE, fp) != NULL) {
-		for (index = 0; index < BUFFER_SIZE; index++) {
+		for (bufferIndex = 0; bufferIndex < BUFFER_SIZE; bufferIndex++) {
+			
 			// add each chain to the chainList
 			// upper bound of index should be corrected. BUFFER_SIZE is too big.
 		}
