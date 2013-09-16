@@ -35,20 +35,26 @@ struct chain {
 struct chain makeChain(char *givenStr) {
 	// given a string, makes a chain and returns it.
 	struct chain newChain;
-	strcpy(newChain.chainStr, givenStr);
+	strncpy(newChain.chainStr, givenStr, CHAIN_SIZE);
 	newChain.occurence = 1;
 	return newChain;
 }
 
-bool isInList(struct chain *chainList, int chainListIndex, char *str) {
+struct chain* isInList(struct chain *chainList, int chainListIndex, char *str) {
 	// checks if the chain with the given str already exists in the list.
+	// if it's in the list, return the pointer to the existing chain.
+	// return NULL otherwise.
 	int searchIndex;
 	for (searchIndex = 0; searchIndex < chainListIndex; searchIndex++) {
 		if (strcmp(chainList[searchIndex].chainStr, str) == 0) {
-			return true;
+			return &chainList[searchIndex];
 		}
 	}
-	return false;
+	return NULL;
+}
+
+void addThisChainToList(struct chain *chainList, struct chain givenChain) {
+	// write code here
 }
 
 int getHigh(int text) {
@@ -88,7 +94,30 @@ int main(int argc, char* argv[]) {
 	char buffer[BUFFER_SIZE];
 	int bufferIndex;
 	while (fgets(buffer, BUFFER_SIZE, fp) != NULL) {
+		// note: the code works only for the first buffer.. will have to deal with
+		// cipher text longer than the buffer. (will discuss in class or lab)
 		for (bufferIndex = 0; bufferIndex < BUFFER_SIZE; bufferIndex++) {
+			// the upper bound BUFFER_SIZE is now okay.
+			if (strcmp(&buffer[bufferIndex+CHAIN_SIZE], "\0") == 0) {
+				// do something if buffer is running out
+				// these lines are for test purposes.
+				fprintf(stderr, "first buffer ran out\n");
+				return(-1);
+			}
+			char chainStr[CHAIN_SIZE];
+			strncpy(chainStr, &buffer[bufferIndex], CHAIN_SIZE);
+			printf("this chain: %s\n", chainStr); // test line
+			struct chain* searchResult = isInList(chainList, chainListIndex, &buffer[bufferIndex]);
+			if (searchResult != NULL) {
+				printf("hello\n"); //test line
+				searchResult->occurence++;
+			}
+			else {
+				// this chain is the 1st instnace.. add to the list.
+				// (realloc memory for the chain list if necessary)
+				chainListIndex++;
+			}
+			
 			// add each chain to the chainList
 			// upper bound of index should be corrected. BUFFER_SIZE is too big.
 		}
