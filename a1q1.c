@@ -40,12 +40,15 @@ struct chain makeChain(char *givenStr) {
 	return newChain;
 }
 
-bool isInChainList(struct chain *chainList, int chainListIndex, char *str) {
+bool isInList(struct chain *chainList, int chainListIndex, char *str) {
 	// checks if the chain with the given str already exists in the list.
-	const int chainSize = sizeof(struct chain);
 	int searchIndex;
 	for (searchIndex = 0; searchIndex < chainListIndex; searchIndex++) {
+		if (strcmp(chainList[searchIndex].chainStr, str) == 0) {
+			return true;
+		}
 	}
+	return false;
 }
 
 int getHigh(int text) {
