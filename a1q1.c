@@ -32,29 +32,33 @@ struct chain {
 	int occurence;
 };
 
-struct chain makeChain(char *givenStr) {
-	// given a string, makes a chain and returns it.
-	struct chain newChain;
-	strncpy(newChain.chainStr, givenStr, CHAIN_SIZE);
-	newChain.occurence = 1;
+void addToChain() {
+	
+}
+
+struct chain* makeChain(char *givenStr) {
+	// given a string, makes a chain and returns the pointer to the chain.
+	struct chain* newChain;
+	newChain = (struct chain *) malloc(sizeof(struct chain));
+	strncpy(newChain->chainStr, givenStr, CHAIN_SIZE);
+	newChain->occurence = 1;
 	return newChain;
 }
 
-struct chain* isInList(struct chain *chainList, int chainListIndex, char *str) {
+struct chain* isInList(struct chain **chainList, int chainListIndex, char *str) {
 	// checks if the chain with the given str already exists in the list.
 	// if it's in the list, return the pointer to the existing chain.
 	// return NULL otherwise.
 	int searchIndex;
+	
 	for (searchIndex = 0; searchIndex < chainListIndex; searchIndex++) {
-		if (strcmp(chainList[searchIndex].chainStr, str) == 0) {
-			return &chainList[searchIndex];
+		printf("%s vs %s\n", chainList[searchIndex]->chainStr, str);
+		if (strcmp(chainList[searchIndex]->chainStr, str) == 0) {
+			printf("true!\n");
+			return chainList[searchIndex];
 		}
 	}
 	return NULL;
-}
-
-void addThisChainToList(struct chain *chainList, struct chain givenChain) {
-	// write code here
 }
 
 int getHigh(int text) {
@@ -88,17 +92,25 @@ int main(int argc, char* argv[]) {
 	}
 
 	// find n consecutive characters (n-chain) that appear multiple times in the cipher text.
-	struct chain *chainList;
-	chainList = (struct chain *) malloc(sizeof(struct chain));
+	struct chain **chainList; // chainList is a list of pointers (to chains).
+	chainList = (struct chain **) malloc(sizeof(int));
 	int chainListIndex = 0;
+	int chainListSize = 1;
 	char buffer[BUFFER_SIZE];
 	int bufferIndex;
+	
+	/*
+	struct chain* newChain = makeChain("hel");
+	chainList[0] = newChain;
+	printf("%s\n", chainList[0]->chainStr);
+	*/
+	
 	while (fgets(buffer, BUFFER_SIZE, fp) != NULL) {
 		// note: the code works only for the first buffer.. will have to deal with
 		// cipher text longer than the buffer. (will discuss in class or lab)
+		
 		for (bufferIndex = 0; bufferIndex < BUFFER_SIZE; bufferIndex++) {
-			// the upper bound BUFFER_SIZE is now okay.
-			if (strcmp(&buffer[bufferIndex+CHAIN_SIZE], "\0") == 0) {
+			if (strcmp(&buffer[bufferIndex+CHAIN_SIZE-1], "\0") == 0) {
 				// do something if buffer is running out
 				// these lines are for test purposes.
 				fprintf(stderr, "first buffer ran out\n");
@@ -106,20 +118,24 @@ int main(int argc, char* argv[]) {
 			}
 			char chainStr[CHAIN_SIZE];
 			strncpy(chainStr, &buffer[bufferIndex], CHAIN_SIZE);
-			printf("this chain: %s\n", chainStr); // test line
-			struct chain* searchResult = isInList(chainList, chainListIndex, &buffer[bufferIndex]);
+			
+			struct chain* searchResult = isInList(chainList, chainListIndex, chainStr);
 			if (searchResult != NULL) {
 				printf("hello\n"); //test line
 				searchResult->occurence++;
 			}
 			else {
-				// this chain is the 1st instnace.. add to the list.
-				// (realloc memory for the chain list if necessary)
+				if (chainListSize == chainListIndex) {
+					// dynamically allocate memory for chainList
+					chainListSize *= 2;
+					chainList = (struct chain **) realloc(chainList, chainListSize * sizeof(int));
+				}
+				struct chain* newChain = makeChain(chainStr);
+				chainList[chainListIndex] = newChain;
 				chainListIndex++;
 			}
 			
 			// add each chain to the chainList
-			// upper bound of index should be corrected. BUFFER_SIZE is too big.
 		}
 	}
 	
