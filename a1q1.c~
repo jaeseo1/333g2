@@ -1,3 +1,18 @@
+/*
+ * Note: any line with improper indentation is test line.
+ *
+ * Overview of the algorithm:
+ * We read in a file, and find every possible n consecutive characters (n-chain)
+ * Then we count the number of times each n-chain appears in the file.
+ * We also have to deal with \n and buffer size because things get chopped off)
+ * When we are done with counting, we pick a few chains that appear the most 
+ * often in the input file, and then try to find the largest common factor.
+ * if we are lucky, we will be able to find the key length.
+ * from the key length, we perform frequency analysis or possibly other
+ * techniques to find the plaintext/key
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,40 +40,12 @@ static int map[16][16] = {
 	{0xa, 0xd, 0xe, 0x9, 0xf, 0x7, 0x6, 0x8, 0x4, 0x5, 0x1, 0x0, 0x2, 0xb, 0x3, 0xc},
 	{0xf, 0x4, 0x1, 0x6, 0x0, 0x2, 0x3, 0x7, 0xb, 0xa, 0x8, 0x9, 0xd, 0xe, 0xc, 0x5}};
 
-struct chain {
-	// an element of chain list.
-	// contains the n-chain string, and the number of occurences.
-	char chainStr[CHAIN_SIZE];
-	int occurence;
-};
-
-void addToChain() {
-	
-}
-
-struct chain* makeChain(char *givenStr) {
-	// given a string, makes a chain and returns the pointer to the chain.
-	struct chain* newChain;
-	newChain = (struct chain *) malloc(sizeof(struct chain));
-	strncpy(newChain->chainStr, givenStr, CHAIN_SIZE);
-	newChain->occurence = 1;
-	return newChain;
-}
-
-struct chain* isInList(struct chain **chainList, int chainListIndex, char *str) {
+int isInList() {
 	// checks if the chain with the given str already exists in the list.
 	// if it's in the list, return the pointer to the existing chain.
 	// return NULL otherwise.
-	int searchIndex;
 	
-	for (searchIndex = 0; searchIndex < chainListIndex; searchIndex++) {
-		printf("%s vs %s\n", chainList[searchIndex]->chainStr, str);
-		if (strcmp(chainList[searchIndex]->chainStr, str) == 0) {
-			printf("true!\n");
-			return chainList[searchIndex];
-		}
-	}
-	return NULL;
+	return 0;
 }
 
 int getHigh(int text) {
@@ -92,18 +79,14 @@ int main(int argc, char* argv[]) {
 	}
 
 	// find n consecutive characters (n-chain) that appear multiple times in the cipher text.
-	struct chain **chainList; // chainList is a list of pointers (to chains).
-	chainList = (struct chain **) malloc(sizeof(int));
+	char *chainList;
 	int chainListIndex = 0;
 	int chainListSize = 1;
+	chainList = (char *) malloc(chainListSize * sizeof(char));
+	int *chainCounList;
+	chainCounList = (int *) malloc(chainListSize * sizeof(int));
 	char buffer[BUFFER_SIZE];
 	int bufferIndex;
-	
-	/*
-	struct chain* newChain = makeChain("hel");
-	chainList[0] = newChain;
-	printf("%s\n", chainList[0]->chainStr);
-	*/
 	
 	while (fgets(buffer, BUFFER_SIZE, fp) != NULL) {
 		// note: the code works only for the first buffer.. will have to deal with
@@ -112,29 +95,13 @@ int main(int argc, char* argv[]) {
 		for (bufferIndex = 0; bufferIndex < BUFFER_SIZE; bufferIndex++) {
 			if (strcmp(&buffer[bufferIndex+CHAIN_SIZE-1], "\0") == 0) {
 				// do something if buffer is running out
-				// these lines are for test purposes.
-				fprintf(stderr, "first buffer ran out\n");
-				return(-1);
+fprintf(stderr, "first buffer ran out\n");
+return(-1);
 			}
 			char chainStr[CHAIN_SIZE];
 			strncpy(chainStr, &buffer[bufferIndex], CHAIN_SIZE);
 			
-			struct chain* searchResult = isInList(chainList, chainListIndex, chainStr);
-			if (searchResult != NULL) {
-				printf("hello\n"); //test line
-				searchResult->occurence++;
-			}
-			else {
-				if (chainListSize == chainListIndex) {
-					// dynamically allocate memory for chainList
-					chainListSize *= 2;
-					chainList = (struct chain **) realloc(chainList, chainListSize * sizeof(int));
-				}
-				struct chain* newChain = makeChain(chainStr);
-				chainList[chainListIndex] = newChain;
-				chainListIndex++;
-				
-			}
+			
 			
 			// add each chain to the chainList
 		}
