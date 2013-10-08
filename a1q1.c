@@ -4,18 +4,13 @@
  * Overview of the algorithm:
  * We read in a file, and find every possible n consecutive characters (n-chain)
  * Then we count the number of times each n-chain appears in the file.
- * We also have to deal with \n and buffer size because things get chopped off)
+ * We would have to deal with ciphertext longer than the buffer size.
  * When we are done with counting, we pick a few chains that appear the most 
  * often in the input file, and then try to find the largest common factor.
  * if we are lucky, we will be able to find the key length.
  * from the key length, we perform frequency analysis or possibly other
  * techniques to find the plaintext/key
  *
- * comments on variables:
- * chainList = list of n-chains. each chain is a string of size n. (and for now
- * i've decided that n=3 because it's the most common choice.) this list will
- * dynamically grow in size, and we will also have another list to keep track
- * of the counts. chainList and chainCountList have same sizes and indexes.
  */
 
 #include <stdio.h>
