@@ -45,9 +45,16 @@ static int map[16][16] = {
 	{0xa, 0xd, 0xe, 0x9, 0xf, 0x7, 0x6, 0x8, 0x4, 0x5, 0x1, 0x0, 0x2, 0xb, 0x3, 0xc},
 	{0xf, 0x4, 0x1, 0x6, 0x0, 0x2, 0x3, 0x7, 0xb, 0xa, 0x8, 0x9, 0xd, 0xe, 0xc, 0x5}};
 
-int isInList(char **chainList, int chainListIndex, char *chain) {
+int isInList(char *chainList, int chainListIndex, char *chain) {
 	// checks if the chain with the given str already exists in the list.
 	// if it's in the list, return the index. otherwise -1;
+	
+	int i;
+	for (i = 0; i < chainListIndex; i++) {
+		if (strncmp(&chainList[3*i], chain, CHAIN_SIZE) == 0) {
+			return i;		
+		}
+	}
 	
 	return -1;
 }
@@ -68,8 +75,6 @@ int getLow(int text) {
 
 int main(int argc, char* argv[]) {
 
-printf("point");
-
 	// error check on arguments
 	if (argc != 2) {
 		fprintf(stderr, "need a ciphertext file\n");
@@ -83,13 +88,12 @@ printf("point");
 		fprintf(stderr, "input file is invalid\n");
 		return(-1);
 	}
-printf("point");
 
 	// find n consecutive characters (n-chain) that appear multiple times in the cipher text.
-	char **chainList;
+	char *chainList;
 	int chainListIndex = 0;
 	int chainListSize = 1;
-	chainList = (char **) malloc(chainListSize * CHAIN_SIZE * sizeof(char));
+	chainList = (char *) malloc(chainListSize * CHAIN_SIZE * sizeof(char));
 	int *chainCounList;
 	chainCounList = (int *) malloc(chainListSize * sizeof(int));
 	char buffer[BUFFER_SIZE];
@@ -101,13 +105,10 @@ printf("point");
 		// cipher text longer than the buffer. (will discuss in class or lab)
 		for (bufferIndex = 0; bufferIndex < BUFFER_SIZE; bufferIndex++) {
 		
-printf("index: %i", bufferIndex);
-		
 			if (strcmp(&buffer[bufferIndex+CHAIN_SIZE-1], "\0") == 0) {
 				// do something if buffer is running out
-				// maybe introduce temporary string to store the str?
-fprintf(stderr, "first buffer ran out\n");
-return(-1);
+				// maybe introduce temporary string?
+break;
 			}
 			strncpy(chainStr, &buffer[bufferIndex], CHAIN_SIZE);
 			j = isInList(chainList, chainListIndex, chainStr);
@@ -115,7 +116,7 @@ return(-1);
 				// The chain alread exists in the list.
 				// increase the count.
 				chainCounList[j] += 1;
-printf("%s exists, for the %ith time\n", chainStr, chainCounList[j]);
+printf("%s found %ith time\n", chainStr, chainCounList[j]);
 			}
 			else {
 				// The chain does not exist in the list.
@@ -123,15 +124,17 @@ printf("%s exists, for the %ith time\n", chainStr, chainCounList[j]);
 				if (chainListIndex == chainListSize) {
 					// dynamically grow the list
 					chainListSize *= 2;
-					chainList = (char **) realloc(chainList, chainListSize * CHAIN_SIZE * sizeof(char));
+					chainList = (char *) realloc(chainList, chainListSize * CHAIN_SIZE * sizeof(char));
 					chainCounList = (int *) realloc(chainCounList, chainListSize * sizeof(int));
 				}
-				strncpy(chainList[chainListIndex], chainStr, CHAIN_SIZE);
+				strncpy(&chainList[chainListIndex], chainStr, CHAIN_SIZE);
 				chainCounList[chainListIndex++] = 1;
+printf("%s found 1st time\n", chainStr);
 			}
+			memset(chainStr, 0, sizeof(chainStr));
 		}
 	}
-	
+printf("%i\n", sizeof(chainStr));
 	// analyze the pattern that they appear. (ex. appear every x bytes)
 	
 	// find the key length and then apply frequency analysis.
