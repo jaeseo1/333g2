@@ -146,7 +146,7 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 			for(int k = 0; k < cipherLength; k += keyLength){
 				int decoded = decodeChar(ciphertext[k+i], j);
 				//printf("decoded for cipher %d, key %d: %d\n", ciphertext[k], possibleKeys[j], decoded);
-				if (! ((decoded > 31 && decoded < 127) || (decoded == 10) || (decoded == 9)) ){
+				if (!matchesFilter(decoded)){
 					//thisIsIt = false;
 					//break;
 				} else {
@@ -167,6 +167,10 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 	}
 	
 	return key;
+}
+
+bool matchesFilter(int decoded){
+	return  ((decoded > 31 && decoded < 127) || (decoded == 10) || (decoded == 9));
 }
 
 int decodeChar(int c, int k){
