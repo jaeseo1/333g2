@@ -4,6 +4,8 @@
 #include <err.h>
 #include <stdbool.h>
 #include <iostream>
+#include <algorithm>
+#include <fstream>
 
 #include <string>
 #include <vector>
@@ -21,7 +23,8 @@ vector<int> getKey(vector<int> ciphertext, int keyLength);
 int decodeChar(int c, int k);
 int getMapRow(int cipher, int col);
 vector<int> decodeAll(vector<int> cipher, vector<int> key);
-void printVectorString(vector<int> thing);
+void printVectorString(vector<int> thing, string toFile);
+bool matchesFilter(int decoded);
 
 #define MAP_SIZE 16
 
@@ -84,11 +87,13 @@ int main(int argc, char* argv[]) {
     printf("keyLength is %d\n", keyLength);
     vector<int> key = getKey(ciphertext, keyLength);
 
+	printVectorString(key, "");
+
 	/*static const int arr[] = {50,98,114,111,100,115,107,121};
-	vector<int> key (arr, arr + sizeof(arr) / sizeof(arr[0]));
+	vector<int> key (arr, arr + sizeof(arr) / sizeof(arr[0]));*/
     vector<int> plaintext = decodeAll(ciphertext, key);
 
-	printVectorString(plaintext);*/
+	printVectorString(plaintext, "output");
     
     //printf("key is %s\n", key.c_str());
     //string plaintext = decodeString(ciphertext, key);
@@ -96,15 +101,32 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-void printVectorString(vector<int> thing){
+void printVectorString(vector<int> thing, string toFile){
+	ofstream myFile;
+	if(toFile != ""){
+		myFile.open(toFile.c_str());
+	}
+	
 	int k = 0;
 	for(int i = 0; i < thing.size(); i++){
 		if (k > 7) k = 0;
 		//if (k ==7) printf("[");
-		printf("%c", thing[i]);
+		
+		if(toFile != ""){
+			myFile << (char)thing[i];
+		} else {
+			printf("%c", thing[i]);
+		}
+		
 		//if (k ==7) printf("]");
 		k++;
 	}
+	
+	if(toFile != ""){
+		myFile.close();
+	}
+	
+	printf("\n");
 }
 
 //decode entire cipher text using key
@@ -136,6 +158,8 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 	//for each character of key to guess
 	for (int i = 0; i < keyLength; i++){
 		//for each possible character
+		vector<int> matches;
+		
 		printf("======TESTING FOR position %d\n", i);
 		for(int j = 32; j < 127; j++){
 			
@@ -154,23 +178,19 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 				}
 			}
 			
-			if (matched > 54) printf("       matched %d for key %d\n", matched, j);
+			//if (matched > 50) printf("       matched %d for key %d\n", matched, j);
 			
-			/*if(thisIsIt){
-				//printf("key char %d is: %c\n", i, possibleKeys[j]);
-				key.push_back(possibleKeys[j]);
-				break;
-			} else {
-				//printf("well it aint %c\n", possibleKeys[j]);
-			}*/
+			matches.push_back(matched);
 		}
+		
+		key.push_back(*max_element(matches.begin(), matches.end()));
 	}
 	
 	return key;
 }
 
 bool matchesFilter(int decoded){
-	return  ((decoded > 31 && decoded < 127) || (decoded == 10) || (decoded == 9));
+	return  (decoded == 0);
 }
 
 int decodeChar(int c, int k){
