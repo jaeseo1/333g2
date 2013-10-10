@@ -27,6 +27,7 @@ int getMapCol(int cipher, int row);
 vector<int> decodeAll(vector<int> cipher, vector<int> key);
 void printVectorString(vector<int> thing, string toFile);
 bool matchesFilter(int decoded);
+int getIndexOfMax(vector<int> vec);
 
 #define MAP_SIZE 16
 
@@ -69,14 +70,6 @@ int main(int argc, char* argv[]) {
     int c;
     vector<int> ciphertext;
 
-	//test area//////////////
-	int cipherChar = 'A';
-	int keyChar = '>';
-	
-	printf("cipher A decoded with key > is %c", decodeChar(cipherChar, keyChar));
-	return 0;	
-	/////////////////////////
-
 	//ciphertext arg
     if (argc != 2) {
         fprintf(stderr, "specify ciphertext\n", argv[0]);
@@ -111,8 +104,8 @@ int main(int argc, char* argv[]) {
     	asskeys[i] = 0;
     }
     
-    for(int i=0; i<plaintext.size(); i++){
-    	asskeys[plaintext[i]]++;
+    for(int i=0; i<ciphertext.size(); i++){
+    	asskeys[ciphertext[i]]++;
     }
     
     for(int i=0; i<256; i++){
@@ -185,11 +178,13 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 		for(int j = 32; j < 127; j++){
 			
 			bool thisIsIt = true;
-			
+			int matchedArr[256];
 			int matched = 0;
 			//for each position in ciphertext that matches with the i'th key character
 			for(int k = 0; k < cipherLength; k += keyLength){
 				int decoded = decodeChar(ciphertext[k+i], j);
+				matchedArr[decoded]++;
+				
 				//printf("decoded for cipher %d, key %d: %d\n", ciphertext[k], possibleKeys[j], decoded);
 				if (!matchesFilter(decoded)){
 					//thisIsIt = false;
@@ -198,16 +193,31 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 					matched++;
 				}
 			}
-			
-			/*if (matched > 50)*/ printf("%d\n", matched, j);
+
+			/*if (matched > 50)*/ printf("        matched %d for key %c \n", matched, j);
 			
 			matches.push_back(matched);
 		}
 		
-		key.push_back(*max_element(matches.begin(), matches.end()));
+		key.push_back(getIndexOfMax(matches));
 	}
 	
 	return key;
+}
+
+//get index of max value in vector of ints
+int getIndexOfMax(vector<int> vec){
+	int max = 0;
+	int index = 0;
+
+	for(int i = 0; i < vec.size(); i++){
+		if (vec[i] > max){
+			max = vec[i];
+			index = i;
+		}
+	}
+	
+	return index+32;
 }
 
 bool matchesFilter(int decoded){

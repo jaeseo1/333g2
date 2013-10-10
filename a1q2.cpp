@@ -166,7 +166,6 @@ void printVectorString(vector<int> thing, string toFile){
 	int k = 0;
 	for(int i = 0; i < thing.size(); i++){
 		if (k > 7) k = 0;
-		//if (k ==7) printf("[");
 		
 		if(toFile != ""){
 			myFile << (char)thing[i];//thing[i] << " ";
@@ -174,7 +173,6 @@ void printVectorString(vector<int> thing, string toFile){
 			printf("%c", thing[i]);
 		}
 		
-		//if (k ==7) printf("]");
 		k++;
 	}
 	
