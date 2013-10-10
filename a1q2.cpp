@@ -92,8 +92,20 @@ int main(int argc, char* argv[]) {
     printf("keyLength is %d\n", keyLength);
     
     //mp3 header
-    int headerArray[] = {255,251,160,64};
+    //int headerArray[] = {255,251,160,64};
+    //vector<int> header (headerArray, headerArray + sizeof(headerArray) / sizeof(headerArray[0]));
+    
+    //jpeg header
+    //int headerArray[] = {255, 216, 255, 224, 0, 16, 74, 70, 73, 70};
+    //vector<int> header (headerArray, headerArray + sizeof(headerArray) / sizeof(headerArray[0]));
+    
+    //bmp header
+    //vector<int> header = stringToVector("BM");
+    
+    //png header
+    int headerArray[] = {137, 80, 78, 71, 13, 10, 26, 10};
     vector<int> header (headerArray, headerArray + sizeof(headerArray) / sizeof(headerArray[0]));
+    
     vector<int> footer = stringToVector("footer");
         
     vector<int> upperKey = getUpperKey(ciphertext, header, keyLength);
@@ -109,7 +121,7 @@ int main(int argc, char* argv[]) {
     vector<int> plaintext = decodeAll(ciphertext, key);
 
 	printf("Plaintext decoded with the partial key:\n");
-	printVectorString(plaintext, "");
+	printVectorString(plaintext, "output.png");
 	        	
 	return 0;
 }
@@ -157,7 +169,7 @@ void printVectorString(vector<int> thing, string toFile){
 		//if (k ==7) printf("[");
 		
 		if(toFile != ""){
-			myFile << (char)thing[i];
+			myFile << (char)thing[i];//thing[i] << " ";
 		} else {
 			printf("%c", thing[i]);
 		}

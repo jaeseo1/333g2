@@ -18,11 +18,6 @@ int main(int argc, char* argv[]) {
     int c;
     vector<int> ciphertext;
 
-	long asskeys[256];
-	
-	for(int i=0; i<256; i++){
-    	asskeys[i] = 0;
-    }
 
 	//ciphertext arg
     if (argc != 2) {
@@ -41,18 +36,16 @@ int main(int argc, char* argv[]) {
     while ((c = fgetc(fp)) != EOF) {
 		//ciphertext.push_back(c);
 		
-		//printf("%d ", c);
+		printf("%d ", c);
 		/*if (c == 0)
 			padding++;
 		else 
 			notPadding++;*/
 			
-		asskeys[c]++;
+		
     }
     
-    for(int i=0; i<256; i++){
-    	printf("asskey[%d] = %lu\n", i, asskeys[i]);
-    }
+
     
     fclose(fp);
         	
