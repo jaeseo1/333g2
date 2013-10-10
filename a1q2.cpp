@@ -103,9 +103,12 @@ int main(int argc, char* argv[]) {
     //vector<int> header = stringToVector("BM");
     
     //png header
-    int headerArray[] = {137, 80, 78, 71, 13, 10, 26, 10};
+    //int headerArray[] = {137, 80, 78, 71, 13, 10, 26, 10};
+    //vector<int> header (headerArray, headerArray + sizeof(headerArray) / sizeof(headerArray[0]));
+
+	//pdf hedaer
+	/*int headerArray[] = {37, 80, 68, 70, 45, 49, 46, 53, 10, 37, 181,181,181,181,10};
     vector<int> header (headerArray, headerArray + sizeof(headerArray) / sizeof(headerArray[0]));
-    
     vector<int> footer = stringToVector("footer");
         
     vector<int> upperKey = getUpperKey(ciphertext, header, keyLength);
@@ -114,14 +117,24 @@ int main(int argc, char* argv[]) {
     vector<int> key = constructKey(upperKey, lowerKey, keyLength);
     
 	printf("Partial key is: ");
-    printVectorString(key, "");
+    printVectorString(key, "");*/
 
 	/*static const int arr[] = {50,98,114,111,100,115,107,121};
 	vector<int> key (arr, arr + sizeof(arr) / sizeof(arr[0]));*/
+
+	vector<int> key = stringToVector("Large_Hadron_Collider_at_CERN_?\"?");
     vector<int> plaintext = decodeAll(ciphertext, key);
 
+	printf("rest of the key should be:\n");
+	int teDecode[3] = {103,116,104}; 
+	
+	for(int i= 31; i < 34; i++){
+		int c = decodeKeyChar(ciphertext[i], teDecode[i-31]);
+		printf("%c\n", c);
+	}
+
 	printf("Plaintext decoded with the partial key:\n");
-	printVectorString(plaintext, "output.png");
+	printVectorString(plaintext, "output.pdf");
 	        	
 	return 0;
 }
