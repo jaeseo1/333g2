@@ -104,8 +104,8 @@ int main(int argc, char* argv[]) {
     	asskeys[i] = 0;
     }
     
-    for(int i=0; i<ciphertext.size(); i++){
-    	asskeys[ciphertext[i]]++;
+    for(int i=0; i<plaintext.size(); i++){
+    	asskeys[plaintext[i]]++;
     }
     
     for(int i=0; i<256; i++){
@@ -194,7 +194,7 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 				}
 			}
 
-			/*if (matched > 50)*/ printf("        matched %d for key %c \n", matched, j);
+			if (matched > 50) printf("        matched %d for key %c \n", matched, j);
 			
 			matches.push_back(matched);
 		}
@@ -221,7 +221,7 @@ int getIndexOfMax(vector<int> vec){
 }
 
 bool matchesFilter(int decoded){
-	return  ((decoded == 0));
+	return  ((decoded == 0) || (decoded == 69) || (decoded == 90) || (decoded == 224));
 }
 
 //get a key character given ciphertext and plaintext chars
