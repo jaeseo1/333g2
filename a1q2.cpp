@@ -80,15 +80,15 @@ int main(int argc, char* argv[]) {
     
     fclose(fp);
     
-    /*int keyLength = getKeyLength(ciphertext);
+    int keyLength = getKeyLength(ciphertext);
     printf("keyLength is %d\n", keyLength);
-    vector<int> key = getKey(ciphertext, keyLength);*/
+    vector<int> key = getKey(ciphertext, keyLength);
 
-	static const int arr[] = {50,98,114,111,100,115,107,121};
+	/*static const int arr[] = {50,98,114,111,100,115,107,121};
 	vector<int> key (arr, arr + sizeof(arr) / sizeof(arr[0]));
     vector<int> plaintext = decodeAll(ciphertext, key);
 
-	printVectorString(plaintext);
+	printVectorString(plaintext);*/
     
     //printf("key is %s\n", key.c_str());
     //string plaintext = decodeString(ciphertext, key);
@@ -137,14 +137,14 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 	for (int i = 0; i < keyLength; i++){
 		//for each possible character
 		printf("======TESTING FOR position %d\n", i);
-		for(int j = 0; j < 62; j++){
+		for(int j = 32; j < 127; j++){
 			
 			bool thisIsIt = true;
 			
 			int matched = 0;
 			//for each position in ciphertext that matches with the i'th key character
 			for(int k = 0; k < cipherLength; k += keyLength){
-				int decoded = decodeChar(ciphertext[k+i], possibleKeys[j]);
+				int decoded = decodeChar(ciphertext[k+i], j);
 				//printf("decoded for cipher %d, key %d: %d\n", ciphertext[k], possibleKeys[j], decoded);
 				if (! ((decoded > 31 && decoded < 127) || (decoded == 10) || (decoded == 9)) ){
 					//thisIsIt = false;
@@ -154,7 +154,7 @@ vector<int> getKey(vector<int> ciphertext, int keyLength){
 				}
 			}
 			
-			if (matched > 54) printf("       matched %d for key %d\n", matched, possibleKeys[j]);
+			if (matched > 54) printf("       matched %d for key %d\n", matched, j);
 			
 			/*if(thisIsIt){
 				//printf("key char %d is: %c\n", i, possibleKeys[j]);
@@ -227,7 +227,7 @@ vector<int> encode(vector<int> plain, vector<int> key){
 //get the key length by offseting the ciphertext by incrementing amounts
 //and counting how many characters match
 int getKeyLength(vector<int> cipher){
-	int MAX_LENGTH =12;
+	int MAX_LENGTH =35;
 	int matches[MAX_LENGTH];
 	for (int i=1; i < MAX_LENGTH + 1; i++){
 		matches[i] = getOffsetMatch(cipher, i);

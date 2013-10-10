@@ -80,15 +80,15 @@ int main(int argc, char* argv[]) {
     
     fclose(fp);
     
-    /*int keyLength = getKeyLength(ciphertext);
+    int keyLength = getKeyLength(ciphertext);
     printf("keyLength is %d\n", keyLength);
-    vector<int> key = getKey(ciphertext, keyLength);*/
+    //vector<int> key = getKey(ciphertext, keyLength);
 
-	static const int arr[] = {50,98,114,111,100,115,107,121};
+	/*static const int arr[] = {50,98,114,111,100,115,107,121};
 	vector<int> key (arr, arr + sizeof(arr) / sizeof(arr[0]));
     vector<int> plaintext = decodeAll(ciphertext, key);
 
-	printVectorString(plaintext);
+	printVectorString(plaintext);*/
     
     //printf("key is %s\n", key.c_str());
     //string plaintext = decodeString(ciphertext, key);
