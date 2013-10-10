@@ -6,7 +6,6 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
-#include <sstream>
 
 #include <string>
 #include <vector>
@@ -20,16 +19,14 @@ vector<int> encode(vector<int> plain, vector<int> key);
 int getKeyLength(vector<int> cipher);
 int getOffsetMatch(vector<int> cipher, int offset);
 int max(int array[], int length);
+vector<int> getKey(vector<int> ciphertext, int keyLength);
 int decodeChar(int c, int k);
 int decodeKeyChar(int c, int p);
 int getMapRow(int cipher, int col);
 int getMapCol(int cipher, int row);
 vector<int> decodeAll(vector<int> cipher, vector<int> key);
 void printVectorString(vector<int> thing, string toFile);
-vector<int> stringToVector(string str);
-vector<int> getUpperKey(vector<int> ciphertext, vector<int> header, int keyLength);
-vector<int> getLowerKey(vector<int> ciphertext, vector<int> footer, int keyLength);
-vector<int> constructKey(vector<int> upperKey, vector<int> lowerKey, int keyLength);
+bool matchesFilter(int decoded);
 
 #define MAP_SIZE 16
 
@@ -72,6 +69,14 @@ int main(int argc, char* argv[]) {
     int c;
     vector<int> ciphertext;
 
+	//test area//////////////
+	int cipherChar = 'A';
+	int keyChar = '>';
+	
+	printf("cipher A decoded with key > is %c", decodeChar(cipherChar, keyChar));
+	return 0;	
+	/////////////////////////
+
 	//ciphertext arg
     if (argc != 2) {
         fprintf(stderr, "specify ciphertext\n", argv[0]);
@@ -90,59 +95,34 @@ int main(int argc, char* argv[]) {
     
     int keyLength = getKeyLength(ciphertext);
     printf("keyLength is %d\n", keyLength);
-    
-    //mp3 header
-    int headerArray[] = {255,251,160,64};
-    vector<int> header (headerArray, headerArray + sizeof(headerArray) / sizeof(headerArray[0]));
-    vector<int> footer = stringToVector("footer");
-        
-    vector<int> upperKey = getUpperKey(ciphertext, header, keyLength);
-    vector<int> lowerKey = getLowerKey(ciphertext, footer, keyLength);
-    
-    vector<int> key = constructKey(upperKey, lowerKey, keyLength);
-    
-	printf("Partial key is: ");
-    printVectorString(key, "");
+    vector<int> key = getKey(ciphertext, keyLength);
+
+	printVectorString(key, "");
 
 	/*static const int arr[] = {50,98,114,111,100,115,107,121};
 	vector<int> key (arr, arr + sizeof(arr) / sizeof(arr[0]));*/
     vector<int> plaintext = decodeAll(ciphertext, key);
 
-	printf("Plaintext decoded with the partial key:\n");
-	printVectorString(plaintext, "");
-	        	
+	printVectorString(plaintext, "output");
+	
+	long asskeys[256];
+	
+	for(int i=0; i<256; i++){
+    	asskeys[i] = 0;
+    }
+    
+    for(int i=0; i<plaintext.size(); i++){
+    	asskeys[plaintext[i]]++;
+    }
+    
+    for(int i=0; i<256; i++){
+    	printf("asskeys[%d]: %lu\n", i, asskeys[i]);
+    }
+    
+    //printf("key is %s\n", key.c_str());
+    //string plaintext = decodeString(ciphertext, key);
+    	
 	return 0;
-}
-
-//put together key using upper and lower part, with padding in between
-vector<int> constructKey(vector<int> upperKey, vector<int> lowerKey, int keyLength){
-	vector<int> key;
-	
-	for(int i=0; i < upperKey.size(); i++){
-		key.push_back(upperKey[i]);
-	}
-	
-	for(int i= upperKey.size(); i < (keyLength - lowerKey.size()); i++){
-		key.push_back('x');
-	}
-	
-	int j = 0;
-	for(int i= (keyLength - lowerKey.size()); i < keyLength; i++){
-		key.push_back(lowerKey[j]);
-		j++;
-	}
-	
-	return key;
-}
-
-//convert string to a vector of int ascii codes
-vector<int> stringToVector(string str){
-	vector<int> vec;
-	for(int i = 0; i < str.length(); i++){
-		vec.push_back(str[i]);
-	}
-	
-	return vec;
 }
 
 void printVectorString(vector<int> thing, string toFile){
@@ -173,35 +153,6 @@ void printVectorString(vector<int> thing, string toFile){
 	printf("\n");
 }
 
-//get a partial upper key given cipher text and a possible file header
-vector<int> getUpperKey(vector<int> ciphertext, vector<int> header, int keyLength){
-	vector<int> upperKey;
-	
-	int headerLength = header.size();
-	
-	for(int i = 0; i < headerLength; i++){
-		upperKey.push_back(decodeKeyChar(ciphertext[i], header[i]));
-	}
-	
-	return upperKey;
-}
-
-//get a partial lower key given cipher text and a possible file footer
-vector<int> getLowerKey(vector<int> ciphertext, vector<int> footer, int keyLength){
-	vector<int> lowerKey;
-	
-	int footerLength = footer.size();
-	int cipherLength = ciphertext.size();
-		
-	int j = 0;
-	for(int i = (cipherLength - footerLength); i < cipherLength; i++){
-		lowerKey.push_back(decodeKeyChar(ciphertext[i], footer[j]));
-		j++;
-	}
-	
-	return lowerKey;
-}
-
 //decode entire cipher text using key
 vector<int> decodeAll(vector<int> cipher, vector<int> key){
 	vector<int> plain;
@@ -220,6 +171,49 @@ vector<int> decodeAll(vector<int> cipher, vector<int> key){
 	return plain;
 }
 
+vector<int> getKey(vector<int> ciphertext, int keyLength){
+	vector<int> key;
+
+	int cipherLength = ciphertext.size();
+	
+	//for each character of key to guess
+	for (int i = 0; i < keyLength; i++){
+		//for each possible character
+		vector<int> matches;
+		
+		printf("======TESTING FOR position %d\n", i);
+		for(int j = 32; j < 127; j++){
+			
+			bool thisIsIt = true;
+			
+			int matched = 0;
+			//for each position in ciphertext that matches with the i'th key character
+			for(int k = 0; k < cipherLength; k += keyLength){
+				int decoded = decodeChar(ciphertext[k+i], j);
+				//printf("decoded for cipher %d, key %d: %d\n", ciphertext[k], possibleKeys[j], decoded);
+				if (!matchesFilter(decoded)){
+					//thisIsIt = false;
+					//break;
+				} else {
+					matched++;
+				}
+			}
+			
+			/*if (matched > 50)*/ printf("%d\n", matched, j);
+			
+			matches.push_back(matched);
+		}
+		
+		key.push_back(*max_element(matches.begin(), matches.end()));
+	}
+	
+	return key;
+}
+
+bool matchesFilter(int decoded){
+	return  ((decoded == 0));
+}
+
 //get a key character given ciphertext and plaintext chars
 int decodeKeyChar(int c, int p){
 	int ch = getHigh(c);
@@ -236,7 +230,6 @@ int decodeKeyChar(int c, int p){
 	return k;
 }
 
-//decode single char given ciphertext and key char
 int decodeChar(int c, int k){
 	int ch = getHigh(c);
 	int cl = getLow(c);
